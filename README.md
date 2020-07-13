@@ -17,7 +17,7 @@ version: '3'
 services:
   ytb-dl:
     container_name: ytb-dl
-    image: wiserain/youtube-dl-server:latest
+    image: illallangi/youtubedlserver:latest
     restart: always
     network_mode: bridge
     ports:
