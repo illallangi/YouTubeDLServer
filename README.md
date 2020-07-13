@@ -1,49 +1,59 @@
-![Docker Stars Shield](https://img.shields.io/docker/stars/kmb32123/youtube-dl-server.svg?style=flat-square)
-![Docker Pulls Shield](https://img.shields.io/docker/pulls/kmb32123/youtube-dl-server.svg?style=flat-square)
-[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](https://raw.githubusercontent.com/manbearwiz/youtube-dl-server/master/LICENSE)
-
 # youtube-dl-server
 
-Very spartan and opinionated Web / REST interface for downloading youtube videos onto a server. [`bottle`](https://github.com/bottlepy/bottle) + [`youtube-dl`](https://github.com/rg3/youtube-dl).
+This docker image is with
 
-![screenshot][1]
+- lsiobase/alpine:latest
+    - permission handling with ```PUID``` and ```PGID```
+    - running an app with non-root user
+- Flask web framework
+- Simple REST API for youtube-dl to download requested url
+- Auto-update youtube-dl (restart your container to update)
 
-## How to use this image
+## Usage
 
-### Run on host networking
+```yaml
+version: '3'
 
-This example uses host networking for simplicity. Also note the `-v` argument. This directory will be used to output the resulting videos
-
-```shell
-docker run -d --net="host" --name youtube-dl -v /home/core/youtube-dl:/youtube-dl kmb32123/youtube-dl-server
+services:
+  ytb-dl:
+    container_name: ytb-dl
+    image: illallangi/youtubedlserver:latest
+    restart: always
+    network_mode: bridge
+    ports:
+      - ${PORT_TO_EXPOSE}:8080
+    volumes:
+      - ${DIR_TO_DOWNLOAD}:/youtube-dl
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=Asia/Seoul
+      - YTBDL_O=%(title)s - [%(id)s].%(ext)s
+      - YTBDL_F=bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]
 ```
 
-### Alpine
+Create and run your container as above, and then access to ```http://${DOCKER_HOST_IP}:${PORT_TO_EXPOSE}/youtube-dl```
 
-There is now a working image based on Alpine linux that is much smaller. This will likely become the main image in the future
+## REST API
 
-```shell
-docker run kmb32123/youtube-dl-server:alpine
-```
+- target url: ```/youtube-dl/q```
+- method: ```POST```
+- available parameters: ```url```, ```audio```, and ```acodec```
 
-### Start a download remotely
+## Environment variables
 
-Downloads can be triggered by supplying the `{{url}}` of the requested video through the Web UI or through the REST interface via curl, etc.
+| ENV  | Description  | Default  |
+|---|---|---|
+| ```PUID``` / ```PGID```  | uid and gid for running an app  | ```911``` / ```911```  |
+| ```YTBDL_VER```  | either of ```latest``` or youtube-dl version, e.g. ```2019.09.28```  | ```latest```  |
+| ```YTBDL_O```  | [OUTPUT TEMPLATE](https://github.com/rg3/youtube-dl#output-template)  | ```%(uploader)s/%(title)s.%(ext)s```  |
+| ```YTBDL_F```  | [FORMAT SELECTION](https://github.com/rg3/youtube-dl#format-selection)  | ```bestvideo[ext=mp4][height<=1080]+bestaudio[ext=m4a]/best[ext=mp4]/best```  |
+| ```YTBDL_I```  | set ```true``` to ignore youtube-dl errors, the same as passing ```--ignore-errors``` in commandline  |
+| ```YTBDL_SERVER_HOST```  |   | ```0.0.0.0```
+| ```YTBDL_SERVER_PORT```  |   | ```8080```
+| ```YTBDL_SERVER_ROOT```  | set ```/``` if you want to access without a location path   | ```/youtube-dl```
+| ```YTBDL_SERVER_USER``` / ```YTBDL_SERVER_PASS```  | requires both to activate basicauth   |
 
-#### HTML
+## TODO
 
-Just navigate to `http://{{address}}:8080/youtube-dl` and enter the requested `{{url}}`.
-
-#### Curl
-
-```shell
-curl -X POST --data-urlencode "url={{url}}" http://{{address}}:8080/youtube-dl/q
-```
-
-## Implementation
-
-The server uses [`bottle`](https://github.com/bottlepy/bottle) for the web framework and [`youtube-dl`](https://github.com/rg3/youtube-dl) to handle the downloading. For better or worse, the calls to youtube-dl are made through the shell rather then through the python API.
-
-This docker image is based on [`python:3-onbuild`](https://registry.hub.docker.com/_/python/) and consequently [`debian:jessie`](https://registry.hub.docker.com/u/library/debian/).
-
-[1]: https://raw.githubusercontent.com/manbearwiz/youtube-dl-server/master/youtube-dl-server.png
+- ~~Support http basic auth~~

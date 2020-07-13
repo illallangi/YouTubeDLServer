@@ -1,0 +1,46 @@
+name: docker-buildx
+
+on:
+  watch:
+    types: [started]
+  schedule:
+    - cron: "0 21 * * 5"
+
+env:
+  DOCKERHUB_USER: wiserain
+  DOCKERHUB_REPO: youtube-dl-server
+
+jobs:
+  docker-buildx:
+    runs-on: ubuntu-latest
+    if: (github.event_name != 'watch') || (github.actor == github.event.repository.owner.login)
+    steps:
+      - 
+        name: Load Variables
+        id: vars
+        run: |
+          echo ::set-output name=ydl_ver::$(pip3 search youtube_dl | grep YouTube | awk '{print $2}' | tr -d '()')
+      -
+        name: Checkout
+        uses: actions/checkout@v2
+      - 
+        name: Run Buildx
+        uses: ilteoood/docker_buildx@master
+        with:
+          imageName: ${{ env.DOCKERHUB_USER }}/${{ env.DOCKERHUB_REPO }}
+          tag: latest,${{ steps.vars.outputs.ydl_ver }}
+          dockerFile: Dockerfile
+          publish: true
+          platform: linux/amd64,linux/arm/v7,linux/arm64
+          dockerHubUser: ${{ env.DOCKERHUB_USER }}
+          dockerHubPassword: ${{ secrets.DOCKERHUB_PASS }}
+      -
+        name: Send Notification
+        uses: sarisia/actions-status-discord@v1
+        if: always()
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          status: ${{ job.status }}
+          description: |
+            Image: ${{ env.DOCKERHUB_USER }}/${{ env.DOCKERHUB_REPO }}
+            Tags: latest, ${{ steps.vars.outputs.ydl_ver }}
