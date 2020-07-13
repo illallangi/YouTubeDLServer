@@ -94,6 +94,21 @@ def parse_request_args(args):
         'postprocessors': postprocessor,
         'outtmpl': outtmpl,
         'ignoreerrors': os.getenv('YTBDL_I','false').lower() == 'true',
+        
+        # Write the video description to a .description file
+        'writedescription': True,
+        # Write the video description to a .info.json file
+        'writeinfojson': True,
+        # Write the video annotations to a .annotations.xml file
+        'writeannotations': True,
+        #Write the thumbnail image to a file
+        'writethumbnail': True,
+        #Write all thumbnail formats to files
+        'write_all_thumbnails': True,
+        #Write the video subtitles to a file
+        'writesubtitles': True,
+        #Write the automatically generated subtitles to a file                   
+        'writeautomaticsub': True,
     }
 
 
