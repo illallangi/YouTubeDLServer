@@ -4,7 +4,7 @@ ENV XDG_CACHE_HOME /tmp
 
 RUN \
 	echo "**** install python ****" && \
-	apk add --no-cache python3 && \
+	apk add --no-cache python3 jq && \
 	python3 -m ensurepip && \
 	rm -r /usr/lib/python*/ensurepip && \
 	pip3 install --upgrade pip setuptools && \
