@@ -1,18 +1,20 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-from flask_restful import Resource, fields, marshal, reqparse, inputs
-from auth import basic_auth
 
 import os
 import shutil
 import tempfile
-import youtube_dl
-
+from os import stat
+from os.path import dirname, isfile, join, relpath
 from pathlib import Path
-from os import listdir, stat
-from os.path import isfile, join, relpath, dirname
 from queue import Queue
 from threading import Thread
+
+from auth import basic_auth
+
+from flask_restful import Resource, fields, inputs, marshal, reqparse
+
+import youtube_dl
 
 
 # input
@@ -93,21 +95,21 @@ def parse_request_args(args):
         'format': ydl_format,
         'postprocessors': postprocessor,
         'outtmpl': outtmpl,
-        'ignoreerrors': os.getenv('YTBDL_I','false').lower() == 'true',
-        
+        'ignoreerrors': os.getenv('YTBDL_I', 'false').lower() == 'true',
+
         # Write the video description to a .description file
         'writedescription': True,
         # Write the video description to a .info.json file
         'writeinfojson': True,
         # Write the video annotations to a .annotations.xml file
         'writeannotations': True,
-        #Write the thumbnail image to a file
+        # Write the thumbnail image to a file
         'writethumbnail': True,
-        #Write all thumbnail formats to files
+        # Write all thumbnail formats to files
         'write_all_thumbnails': True,
-        #Write the video subtitles to a file
+        # Write the video subtitles to a file
         'writesubtitles': True,
-        #Write the automatically generated subtitles to a file                   
+        # Write the automatically generated subtitles to a file
         'writeautomaticsub': True,
     }
 

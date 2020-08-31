@@ -1,10 +1,12 @@
-from flask import Flask
-from flask_restful import Api
-
-import os
 import logging
+import os
 
 from blueprints.ydl import ydl
+
+from flask import Flask
+
+from flask_restful import Api
+
 from resources.ydl import YoutubeDLAPI
 
 http_root = os.getenv('YTBDL_SERVER_ROOT', '/youtube-dl')

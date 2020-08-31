@@ -1,5 +1,7 @@
-from flask import Blueprint, send_from_directory, redirect, render_template
 from auth import basic_auth
+
+from flask import Blueprint, render_template, send_from_directory
+
 
 ydl = Blueprint('ydl', __name__, template_folder='static', static_folder='static', static_url_path='')
 
