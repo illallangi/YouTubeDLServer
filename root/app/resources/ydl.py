@@ -47,7 +47,7 @@ class YoutubeDLAPI(Resource):
             all_files = [str(f) for f in Path(dl_path).glob('**/*') if isfile(f)]
             completed = [f for f in all_files if 'incomplete_' not in f]
             incomplete = [f for f in all_files if 'incomplete_' in f]
-            mtime = lambda f: stat(f).st_mtime
+            mtime = lambda f: stat(f).st_mtime # noqa E731
             return marshal({
                 'success': True,
                 'queue': [q['url'] for q in list(dl_q.queue)],
